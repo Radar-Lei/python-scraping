@@ -9,23 +9,27 @@ from flask import request as flask_request
 import json
 from flask_socketio import SocketIO, emit
 import os
+from dotenv import load_dotenv
 
 
 baidu_web_key = 'k74dnzzNHEmOsCkzTCxVrKhEH62vcVYP'
 poi_search_url = "http://api.map.baidu.com/place/v2/search"
 
 radius = 500
-queries = ['教育培训','住宅区']
+queries = ['教育培训', '住宅区']
 
 # 根据城市名称和分类关键字获取poi数据
 
 
 def getpois(name_list, location, queries):
     poilist = pd.DataFrame(
-        columns=['location', 'type', 'area', 'name', 'station'])
-    for i in range(len(location)):
+        columns=['location', 'type', 'area', 'name', 'address'])
+    for j in range(len(location)):
+        loc = location[j]
+        station_name = name_list[j].encode('utf_8-sig')
+        station_name = station_name.decode('utf_8-sig')
         # engine = create_engine(
-            # 'postgresql://username:password@database.cn:5432/postgres')
+        # 'postgresql://username:password@database.cn:5432/postgres')
         for query in queries:
             i = 0
             # print(loc, query)
@@ -40,13 +44,14 @@ def getpois(name_list, location, queries):
                 data1 = result[['area', 'name', 'address']]
 
                 data2 = pd.DataFrame(
-                    [[loc, query]] * len(data1.index), columns=['location', 'type'])
+                    [[station_name, query]] * len(data1.index), columns=['location', 'type'])
                 df = (pd.concat([data2, data1], axis=1))
                 poilist = pd.concat([poilist, df], ignore_index=True)
                 # df.to_sql('bd_pois', engine, schema='analyst',
                 # index = False, if_exists = 'append')
                 # df.to_csv('C:\\Users\\Felicity\\Desktop\\bd_pois.csv', mode='a', header=False, index=False, encoding='utf_8_sig')
                 i = i + 1
+
     return poilist
 
 
@@ -80,6 +85,7 @@ def index():
 @socketio.on("submit data")
 def poi(data):
     location = data["location_list"]
-    pois = getpois(location, queries, 15)
-    pois.to_csv('C:\\Users\\Radar_lei\\Desktop\\bd_pois.csv',
-                mode='a', header=False, index=False, encoding='utf_8_sig')
+    name_list = data["name_list"]
+    pois = getpois(name_list, location, queries)
+    pois.to_csv('bd_pois.csv',
+                mode='a', header=False, index=False, encoding='utf_8-sig')
