@@ -12,7 +12,7 @@ import os
 from dotenv import load_dotenv
 
 
-baidu_web_key = 'k74dnzzNHEmOsCkzTCxVrKhEH62vcVYP'
+baidu_web_key = '9s5GSYZsWbMaFU8Ps2V2VWvDlDlqGaaO'
 poi_search_url = "http://api.map.baidu.com/place/v2/search"
 
 radius = 500
@@ -26,8 +26,9 @@ def getpois(name_list, location, queries):
         columns=['location', 'type', 'area', 'name', 'address'])
     for j in range(len(location)):
         loc = location[j]
-        station_name = name_list[j].encode('utf_8-sig')
-        station_name = station_name.decode('utf_8-sig')
+        # 也许只在flask里出现这个问题，前端发来是unicode需要编译
+        station_name = name_list[j].encode('raw_unicode_escape')
+        station_name = station_name.decode('utf_8')
         # engine = create_engine(
         # 'postgresql://username:password@database.cn:5432/postgres')
         for query in queries:
@@ -84,7 +85,7 @@ def index():
 
 @socketio.on("submit data")
 def poi(data):
-    location = data["location_list"]
+    location = data["location_list"]  # 直接接收了类dictionary的 object
     name_list = data["name_list"]
     pois = getpois(name_list, location, queries)
     pois.to_csv('bd_pois.csv',
