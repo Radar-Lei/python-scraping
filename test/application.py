@@ -14,16 +14,16 @@ import os
 baidu_web_key = 'k74dnzzNHEmOsCkzTCxVrKhEH62vcVYP'
 poi_search_url = "http://api.map.baidu.com/place/v2/search"
 
-radius = 300
-queries = ['美食']
+radius = 500
+queries = ['教育培训','住宅区']
 
 # 根据城市名称和分类关键字获取poi数据
 
 
-def getpois(location, queries, num):
+def getpois(name_list, location, queries):
     poilist = pd.DataFrame(
-        columns=['location', 'type', 'area', 'name', 'address'])
-    for loc in location:
+        columns=['location', 'type', 'area', 'name', 'station'])
+    for i in range(len(location)):
         # engine = create_engine(
             # 'postgresql://username:password@database.cn:5432/postgres')
         for query in queries:
@@ -81,5 +81,5 @@ def index():
 def poi(data):
     location = data["location_list"]
     pois = getpois(location, queries, 15)
-    pois.to_csv('C:\\Users\\greatraid\\Desktop\\bd_pois.csv',
+    pois.to_csv('C:\\Users\\Radar_lei\\Desktop\\bd_pois.csv',
                 mode='a', header=False, index=False, encoding='utf_8_sig')
