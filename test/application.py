@@ -35,7 +35,7 @@ def getpois(name_list, location, queries):
             # print(loc, query)
             while True:  # 使用while循环不断分页获取数据
                 result = getpoi_page(loc, query, i)
-                result = json.loads(result)  # 将字符串转换为json
+                result = json.loads(result)  # 将字符串转换为json1
 
                 if len(result['results']) == 0:
                     break
